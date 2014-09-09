@@ -26,9 +26,9 @@ public class Node{
 		}
 	}
 
-	void insertRectangle(Rectangle r, boolean variante){
+	void insertRectangle(Rectangle r, boolean variante, Node[] root){
 		if(isLeaf)
-			insertOverflowedRectangle(r,variante);
+			insertOverflowedRectangle(r,variante,root);
 		else{
 			Rectangle newr = rectangles.get(0);
 			ArrayList<Rectangle> lst = new ArrayList<Rectangle>();
@@ -46,15 +46,17 @@ public class Node{
 				}else if((newMBR.area() - nr.area()) == incremento)
 					newr = newr.area() < nr.area() ?  newr : nr;
 			}
-			newr.node.insertRectangle(r,variante);
+			newr.node.insertRectangle(r,variante,root);
 		}
 	}
 	
-	void insertOverflowedRectangle(Rectangle r, boolean variante){
+	void insertOverflowedRectangle(Rectangle r, boolean variante, Node[] root){
 		rectangles.add(r);
 		if(rectangles.size() > 2*t){ //overflow
-			if(father == null)
+			if(father == null){
 				father = new Node(t,null,false);
+				root[0] = father; // sa cambia referencia a la raiz del arbol si hay overflow en esta
+			}
 			else{ // se elimina este nodo porque se insertara nuevamente
 				for(Rectangle raux : father.rectangles){
 					if(raux.node == this){
@@ -77,8 +79,8 @@ public class Node{
 			Rectangle rectangle_brother = makeMBR(g2);
 			thisrectangle.node = this;
 			rectangle_brother.node = node_brother;
-			father.insertOverflowedRectangle(thisrectangle,variante);
-			father.insertOverflowedRectangle(rectangle_brother,variante);
+			father.insertOverflowedRectangle(thisrectangle,variante,root);
+			father.insertOverflowedRectangle(rectangle_brother,variante,root);
 			father.update(node_brother);
 		}
 		if(father != null)
@@ -148,23 +150,18 @@ public class Node{
 			 * que alcanzaria t solo si se agregan todos los que quedan sin grupo
 			 */
 			if(g1.size()+rectangles.size() == t){
-				for(Rectangle nr : rectangles){
+				for(Rectangle nr : rectangles)
 					g1.add(nr);
-					//rectangles.remove(nr);
-				}
 				break;
 			}else if(g2.size()+rectangles.size() == t){
-				for(Rectangle nr : rectangles){
+				for(Rectangle nr : rectangles)
 					g2.add(nr);
-					//rectangles.remove(nr);
-				}
 				break;
 			}else{
 				/* incrementos calculados para cada rectangulo si se agregaran al grupo 1 o 2,
 				 * y tambien los incrementos finales, que serviran para decidir en cual grupo ira
 				 */
 				double incremento1 = 0, incremento2 = 0, incremento1_final = 0, incremento2_final = 0;
-				int grupo = 0;
 				double max = 0;
 				Rectangle chosen = rectangles.get(0);
 				for(Rectangle nr : rectangles){
@@ -186,34 +183,142 @@ public class Node{
 				}
 				// 	eligiendo a que grupo ira el rectangulo elegido
 				if(incremento1_final < incremento2_final)
-					grupo = 1;
+					g1.add(chosen);
 				else if(incremento1_final > incremento2_final)
-					grupo = 2;
+					g2.add(chosen);
 				else{
 					double area1 = makeMBR(g1).area();
 					double area2 = makeMBR(g2).area();
 					if(area1 < area2)
-						grupo = 1;
+						g1.add(chosen);
 					else if(area1 > area2)
-						grupo = 2;
+						g2.add(chosen);
 					else{
 						if(g1.size() < g2.size())
-							grupo = 1;
+							g1.add(chosen);
 						else if(g1.size() > g2.size())
-							grupo = 2;
-						else
-							grupo = Math.random() <= 0.5 ? 1 : 2;
+							g2.add(chosen);
+						else{
+							if(Math.random() <= 0.5)
+								g1.add(chosen);
+							else
+								g2.add(chosen);
+						}
 					}
 				}
-				if(grupo == 1)
-					g1.add(chosen);
-				else
-					g2.add(chosen);
 				rectangles.remove(chosen);
 			}
 		}
 	}
 	
 	void linearSplit(ArrayList<Rectangle> g1, ArrayList<Rectangle> g2){
+		Rectangle R1, R2;
+		/* para ambas dimensiones buscamos el rectangulo Ad cuyo lado mayor ad es minimo
+		 * y el rectangulo Bd cuyo lado menor bd es maximo
+		 */
+		Rectangle Ax = rectangles.get(0);
+		double ax = Ax.x2;
+		Rectangle Ay = rectangles.get(0);
+		double ay = Ay.y2;
+		Rectangle Bx = rectangles.get(0);
+		double bx = Bx.x1;
+		Rectangle By = rectangles.get(0);
+		double by = By.y1;
+		for(Rectangle nr : rectangles){
+			if(nr.x2 < ax){
+				ax = nr.x1;
+				Ax = nr;
+			}
+			if(nr.y2 < ay){
+				ay = nr.y1;
+				Ay = nr;
+			}
+			if(nr.x1 > bx){
+				bx = nr.x2;
+				Bx = nr;
+			}
+			if(nr.y1 > by){
+				by = nr.y2;
+				By = nr;
+			}
+		}
+		double anchox = ( Bx.x2 < Ax.x2 ? Ax.x2 : Bx.x2) - (Bx.x1 > Ax.x1 ? Ax.x1 : Bx.x1);
+		double anchoy = ( By.y2 < Ay.y2 ? Ay.y2 : By.y2) - (By.y1 > Ay.y1 ? Ay.y1 : By.y1);
+		double wx = (bx - ax)/anchox;
+		double wy = (by - ay)/anchoy;
+		if(wx > wy){
+			if(Ax != Bx){
+				R1 = Ax;
+				R2 = Bx;
+			}else{
+				R1 = rectangles.get(0);
+				R2 = rectangles.get(1);
+			}
+		}else{
+			if(Ay != By){
+				R1 = Ay;
+				R2 = By;
+			}else{
+				R1 = rectangles.get(0);
+				R2 = rectangles.get(1);
+			}
+		}
+		g1.add(R1);
+		g2.add(R2);
+		rectangles.remove(R1);
+		rectangles.remove(R2);
+		// una vez elegidos los 2 rectangulos, se comienzan a agregar de a uno a los grupos
+		while(!rectangles.isEmpty()){
+			/* primero se verifica si alguno de los grupos tiene tan pocos rectangulos
+			 * que alcanzaria t solo si se agregan todos los que quedan sin grupo
+			 */
+			Rectangle r = rectangles.get(0);
+			if(g1.size()+rectangles.size() == t){
+				for(Rectangle nr : rectangles)
+					g1.add(nr);
+				break;
+			}else if(g2.size()+rectangles.size() == t){
+				for(Rectangle nr : rectangles)
+					g2.add(nr);
+				break;
+			}else{
+				double incremento1 = 0;
+				double incremento2 = 0;
+				Rectangle newMBR;
+				g1.add(r);
+				newMBR = makeMBR(g1);
+				g1.remove(r);
+				incremento1 = newMBR.area() - makeMBR(g1).area();
+				g2.add(r);
+				newMBR = makeMBR(g2);
+				g2.remove(r);
+				incremento2 = newMBR.area() - makeMBR(g2).area();
+				if(incremento1 < incremento2)
+					g1.add(r);
+				else if(incremento1 > incremento2)
+					g2.add(r);
+				else{
+					double area1 = makeMBR(g1).area();
+					double area2 = makeMBR(g2).area();
+					if(area1 < area2)
+						g1.add(r);
+					else if(area1 > area2)
+						g2.add(r);
+					else{
+						if(g1.size() < g2.size())
+							g1.add(r);
+						else if(g1.size() > g2.size())
+							g2.add(r);
+						else{
+							if(Math.random() <= 0.5)
+								g1.add(r);
+							else
+								g2.add(r);
+						}
+					}
+				}
+			}
+			rectangles.remove(r);
+		}
 	}
 }
