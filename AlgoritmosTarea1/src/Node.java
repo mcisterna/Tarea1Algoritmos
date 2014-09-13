@@ -8,6 +8,7 @@ public class Node{
 	Node father;
 	boolean isLeaf;
 	
+	//crea un notod y se asigna un padre y si es la hoja de el, es decir si no tiene hermanos
 	public Node(int t, Node father, boolean isLeaf){
 		this.t = t;
 		this.father = father;
@@ -15,6 +16,7 @@ public class Node{
 		rectangles = new ArrayList<Rectangle>();
 	}
 	
+	//busca un rectangulo en un arreglo de rectangulos
 	public void searchRectangle(Rectangle r, ArrayList<Rectangle> lst){
 		for(Rectangle nr : rectangles){
 			if(!r.equals(nr) && r.intersect(nr)){
@@ -26,6 +28,7 @@ public class Node{
 		}
 	}
 
+	//inserta un rectangulo 
 	void insertRectangle(Rectangle r, boolean variante, Node[] root){
 		if(isLeaf)
 			insertOverflowedRectangle(r,variante,root);
@@ -49,7 +52,7 @@ public class Node{
 			newr.node.insertRectangle(r,variante,root);
 		}
 	}
-	
+	//inserta un rectangulo cuando el arbol esta overflowed
 	void insertOverflowedRectangle(Rectangle r, boolean variante, Node[] root){
 		rectangles.add(r);
 		if(rectangles.size() > 2*t){ //overflow
