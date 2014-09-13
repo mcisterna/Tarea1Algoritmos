@@ -8,7 +8,7 @@ public class Rectangle {
 	   
 	double x1, y1, x2, y2;
 	Node node;
-	
+	// rectangle(x1, x2, y1, y2) genera un rectangulo con cordenadas (x1,x2) (y1,y2) 
 	public Rectangle(double x1, double x2, double y1, double y2){
 		this.x1 = x1;
 		this.y1 = y1;
