@@ -7,7 +7,7 @@ public class Main {
 		
 		RandomData random = new RandomData();
 		
-		System.out.println(random.generateRandom((int) Math.pow(2, 24)));
+		System.out.println(random.generateRandom2((int) Math.pow(2, 1)));
 		
 //		RTree t = new RTree(1);
 //		Rectangle r1 = new Rectangle(0,2,0,2);
