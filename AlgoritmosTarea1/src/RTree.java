@@ -14,7 +14,7 @@ public class RTree {
 	public void insert(Rectangle r, boolean variante){
 		root[0].insertRectangle(r, variante,root);
 	}
-	// busco en el arbol el rectanguloy retorno una lista de rectangulos
+	// busco en el arbol el rectangulo y retorno una lista de rectangulos
 	public ArrayList<Rectangle> search(Rectangle r){
 		ArrayList<Rectangle> lst = new ArrayList<Rectangle>();
 		root[0].searchRectangle(r, lst);
