@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-
-public class Node{
+//serializable para luego obtener su tamaño en bytes
+public class Node implements Serializable{
 	
 	ArrayList<Rectangle> rectangles;
 	int t;
@@ -28,6 +29,7 @@ public class Node{
 
 	void insertRectangle(Rectangle r, boolean variante, Node[] root){
 		if(isLeaf)
+			// si es hoja se inserta el rectangulo
 			insertOverflowedRectangle(r,variante,root);
 		else{
 			Rectangle newr = rectangles.get(0);
@@ -242,8 +244,8 @@ public class Node{
 				By = nr;
 			}
 		}
-		double anchox = ( Bx.x2 < Ax.x2 ? Ax.x2 : Bx.x2) - (Bx.x1 > Ax.x1 ? Ax.x1 : Bx.x1);
-		double anchoy = ( By.y2 < Ay.y2 ? Ay.y2 : By.y2) - (By.y1 > Ay.y1 ? Ay.y1 : By.y1);
+		double anchox = (Bx.x2 < Ax.x2 ? Ax.x2 : Bx.x2) - (Bx.x1 > Ax.x1 ? Ax.x1 : Bx.x1);
+		double anchoy = (By.y2 < Ay.y2 ? Ay.y2 : By.y2) - (By.y1 > Ay.y1 ? Ay.y1 : By.y1);
 		double wx = (bx - ax)/anchox;
 		double wy = (by - ay)/anchoy;
 		if(wx > wy){
