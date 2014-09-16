@@ -1,5 +1,7 @@
+import java.io.Serializable;
 
-public class Rectangle {
+// serializable para luego obtener su tamaño
+public class Rectangle implements Serializable{
 
 	/* rectangulo representado por 2 puntos:
 	 * esquina inferior izquierda (x1,y1)

@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-
-public class Node{
+//serializable para luego obtener su tamaño en bytes
+public class Node implements Serializable{
 	
 	ArrayList<Rectangle> rectangles;
 	int t;
@@ -15,21 +16,25 @@ public class Node{
 		rectangles = new ArrayList<Rectangle>();
 	}
 	
-	public void searchRectangle(Rectangle r, ArrayList<Rectangle> lst){
+	public int searchRectangle(Rectangle r, ArrayList<Rectangle> lst){
+		int IOs = 0;
 		for(Rectangle nr : rectangles){
 			if(!r.equals(nr) && r.intersect(nr)){
 				if(isLeaf)
 					lst.add(nr);
 				else
-					nr.node.searchRectangle(r,lst);
+					IOs += 1 + nr.node.searchRectangle(r,lst);
 			}
 		}
+		return IOs;
 	}
 
-	void insertRectangle(Rectangle r, boolean variante, Node[] root){
+	public int insertRectangle(Rectangle r, boolean variante, Node[] root){
 		if(isLeaf)
-			insertOverflowedRectangle(r,variante,root);
+			// si es hoja se inserta el rectangulo
+			return insertOverflowedRectangle(r,variante,root);
 		else{
+			// si no es hoja, se calcula el menor MBR
 			Rectangle newr = rectangles.get(0);
 			ArrayList<Rectangle> lst = new ArrayList<Rectangle>();
 			lst.add(0,r);
@@ -46,13 +51,18 @@ public class Node{
 				}else if((newMBR.area() - nr.area()) == incremento)
 					newr = newr.area() < nr.area() ?  newr : nr;
 			}
-			newr.node.insertRectangle(r,variante,root);
+			// se suma una lectura ya que se accede a un nuevo nodo
+			return 1 + newr.node.insertRectangle(r,variante,root);
 		}
 	}
 	
-	void insertOverflowedRectangle(Rectangle r, boolean variante, Node[] root){
+	public int insertOverflowedRectangle(Rectangle r, boolean variante, Node[] root){
 		rectangles.add(r);
-		if(rectangles.size() > 2*t){ //overflow
+		if(rectangles.size() <= 2*t){
+			if(father != null)
+				father.update(this);
+			return 0;
+		}else{ //overflow
 			if(father == null){
 				father = new Node(t,null,false);
 				root[0] = father; // sa cambia referencia a la raiz del arbol si hay overflow en esta
@@ -79,12 +89,13 @@ public class Node{
 			Rectangle rectangle_brother = makeMBR(g2);
 			thisrectangle.node = this;
 			rectangle_brother.node = node_brother;
-			father.insertOverflowedRectangle(thisrectangle,variante,root);
-			father.insertOverflowedRectangle(rectangle_brother,variante,root);
+			int IOs = 0;
+			IOs += father.insertOverflowedRectangle(thisrectangle,variante,root);
+			IOs += father.insertOverflowedRectangle(rectangle_brother,variante,root);
 			father.update(node_brother);
-		}
-		if(father != null)
 			father.update(this);
+			return IOs;
+		}
 	}
 	
 	public void update(Node child){
@@ -116,6 +127,7 @@ public class Node{
 	}
 	
 	public void quadraticSplit(ArrayList<Rectangle> g1, ArrayList<Rectangle> g2){
+		int IOs = 0;
 		Rectangle newMBR;
 		// indices finales de los rectangulos elegidos para separar en 2 grupos
 		int final_i = 0, final_j = 1;
@@ -211,7 +223,7 @@ public class Node{
 		}
 	}
 	
-	void linearSplit(ArrayList<Rectangle> g1, ArrayList<Rectangle> g2){
+	public void linearSplit(ArrayList<Rectangle> g1, ArrayList<Rectangle> g2){
 		Rectangle R1, R2;
 		/* para ambas dimensiones buscamos el rectangulo Ad cuyo lado mayor ad es minimo
 		 * y el rectangulo Bd cuyo lado menor bd es maximo
@@ -242,8 +254,8 @@ public class Node{
 				By = nr;
 			}
 		}
-		double anchox = ( Bx.x2 < Ax.x2 ? Ax.x2 : Bx.x2) - (Bx.x1 > Ax.x1 ? Ax.x1 : Bx.x1);
-		double anchoy = ( By.y2 < Ay.y2 ? Ay.y2 : By.y2) - (By.y1 > Ay.y1 ? Ay.y1 : By.y1);
+		double anchox = (Bx.x2 < Ax.x2 ? Ax.x2 : Bx.x2) - (Bx.x1 > Ax.x1 ? Ax.x1 : Bx.x1);
+		double anchoy = (By.y2 < Ay.y2 ? Ay.y2 : By.y2) - (By.y1 > Ay.y1 ? Ay.y1 : By.y1);
 		double wx = (bx - ax)/anchox;
 		double wy = (by - ay)/anchoy;
 		if(wx > wy){
