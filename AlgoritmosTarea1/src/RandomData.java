@@ -80,7 +80,7 @@ public class RandomData {
 	        y1 = random.nextInt(500001);
 	        y2 = random.nextInt(500001);
 	        
-	        if ((y1-y2) <= mitadArea && (y1-y2) > 0)
+	        if ((y1-y2) <= ((x1-x2)/mitadArea) && (y1-y2) > 0)
 	        {
 	        	System.out.println("y1-y2: " + (y1-y2));
 	        	break;
