@@ -7,7 +7,8 @@ public class Rectangle implements Serializable{
 	 * esquina inferior izquierda (x1,y1)
 	 * esquina superior derecha (x2,y2)
 	 */
-	   
+	
+	private static final long serialVersionUID = 1L;
 	double x1, y1, x2, y2;
 	Node node;
 	

@@ -3,7 +3,10 @@ import java.util.ArrayList;
 
 //serializable para luego obtener su tamaño en bytes
 public class Node implements Serializable{
+
+// funciones de busqueda e insercion simulan y retornan el numero total de I/Os que deberían hacer 
 	
+	private static final long serialVersionUID = 1L;
 	ArrayList<Rectangle> rectangles;
 	int t;
 	Node father;
@@ -19,6 +22,7 @@ public class Node implements Serializable{
 	public int searchRectangle(Rectangle r, ArrayList<Rectangle> lst){
 		int IOs = 0;
 		for(Rectangle nr : rectangles){
+			System.out.println("soy un rect");
 			if(!r.equals(nr) && r.intersect(nr)){
 				if(isLeaf)
 					lst.add(nr);
@@ -58,13 +62,15 @@ public class Node implements Serializable{
 	
 	public int insertOverflowedRectangle(Rectangle r, boolean variante, Node[] root){
 		rectangles.add(r);
+		int IOs = 0;
 		if(rectangles.size() <= 2*t){
 			if(father != null)
 				father.update(this);
-			return 0;
+			return IOs; // no hubieron IOs ya que se inserto en el mismo nodo en memoria y no hubo overflow
 		}else{ //overflow
 			if(father == null){
 				father = new Node(t,null,false);
+				IOs++; // alocar en memoria un nuevo nodo cuando el overflow se extendio hasta el padre
 				root[0] = father; // sa cambia referencia a la raiz del arbol si hay overflow en esta
 			}
 			else{ // se elimina este nodo porque se insertara nuevamente
@@ -83,14 +89,14 @@ public class Node implements Serializable{
 			else
 				linearSplit(g1,g2);
 			Node node_brother = new Node(t,father,isLeaf);
+			IOs++; // alocar en memoria nuevo nodo
 			rectangles = g1;
 			node_brother.rectangles = g2;
 			Rectangle thisrectangle = makeMBR(g1);
 			Rectangle rectangle_brother = makeMBR(g2);
 			thisrectangle.node = this;
 			rectangle_brother.node = node_brother;
-			int IOs = 0;
-			IOs += father.insertOverflowedRectangle(thisrectangle,variante,root);
+			IOs += father.insertOverflowedRectangle(thisrectangle,variante,root); // debería ser siempre 0, ya que nodo fue eliminado previamente
 			IOs += father.insertOverflowedRectangle(rectangle_brother,variante,root);
 			father.update(node_brother);
 			father.update(this);
@@ -127,7 +133,6 @@ public class Node implements Serializable{
 	}
 	
 	public void quadraticSplit(ArrayList<Rectangle> g1, ArrayList<Rectangle> g2){
-		int IOs = 0;
 		Rectangle newMBR;
 		// indices finales de los rectangulos elegidos para separar en 2 grupos
 		int final_i = 0, final_j = 1;
