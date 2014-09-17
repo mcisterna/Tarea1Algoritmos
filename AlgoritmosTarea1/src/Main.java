@@ -28,7 +28,7 @@ public class Main {
 		writer4.println("Tamano (2^n)	Cantidad promedio I/Os	d.e. I/Os	Tiempo promedio (milisegundos)	d.e. tiempo");
 		StopWatch timer1 = new StopWatch();
 		StopWatch timer2 = new StopWatch();
-		for(int i=9;i<=24;i+=3){
+		for(int i=9;i<=21;i+=3){
 			IO_linear.clear();
 			IO_quadratic.clear();
 			time_quadratic.clear();

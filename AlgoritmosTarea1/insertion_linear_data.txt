@@ -1,0 +1,6 @@
+Tamano (2^n)	Cantidad I/Os	Tiempo (milisegundos)
+9	750	7
+12	10847	44
+15	116739	472
+18	1146669	4438
+21	11405116	42376
