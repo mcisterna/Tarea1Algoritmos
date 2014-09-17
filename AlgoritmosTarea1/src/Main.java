@@ -107,7 +107,7 @@ public class Main {
 		Rectangle r2 = new Rectangle(1,2,3,4);
 		Node n = new Node(2,null,true);
 		n.rectangles.add(r0);
-		// tamaños con 1, 2 y 3 rectangulos
+		// tamaños con 1, 2 y 3 rectangulos 
 		int with1rec = 0, with2rec = 0, with3rec = 0;
 		try{
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
