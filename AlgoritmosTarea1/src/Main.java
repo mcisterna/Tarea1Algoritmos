@@ -50,12 +50,12 @@ public class Main {
 				cnt2 += tree2.insert(r,false);
 				timer2.pause();
 			}
-			timer1.reset();
-			timer2.reset();
 			writer1.println(i+"	"+cnt1+"	"+timer1.getElapsedTime());
 			writer2.println(i+"	"+cnt2+"	"+timer2.getElapsedTime());
-			System.out.println("para 1 2^"+i+": "+cnt1+" y nodos: "+nodos(tree1.root[0]));
-			System.out.println("para 2 2^"+i+": "+cnt2+" y nodos: "+nodos(tree2.root[0]));
+			System.out.println("para 1 2^"+i+": "+cnt1);
+			System.out.println("para 2 2^"+i+": "+cnt2);
+			timer1.reset();
+			timer2.reset();
 			// ahora se calcula tiempo y cantidad de I/Os de n/10 busquedas
 			int c1 = 0, c2 = 0;
 			for(int j=0;j<n/10;j++){
@@ -81,14 +81,6 @@ public class Main {
 		writer2.close();
 		writer3.close();
 		writer4.close();
-	}
-	
-	// calcula cantidad de nodos
-	static int nodos(Node n){
-		int cnt = 1;
-		for(Rectangle r : n.rectangles)
-			cnt += r.node != null ? nodos(r.node) : 0; 
-		return cnt;
 	}
 	
 	static double promedio(ArrayList<Number> lst){

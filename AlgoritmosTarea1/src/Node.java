@@ -22,7 +22,6 @@ public class Node implements Serializable{
 	public int searchRectangle(Rectangle r, ArrayList<Rectangle> lst){
 		int IOs = 0;
 		for(Rectangle nr : rectangles){
-			System.out.println("soy un rect");
 			if(!r.equals(nr) && r.intersect(nr)){
 				if(isLeaf)
 					lst.add(nr);
