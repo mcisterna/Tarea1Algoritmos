@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Random;
 
 
 public class Main {
@@ -102,7 +101,7 @@ public class Main {
 		// Tamaño de bloque = 4 KB
 		int block_sz = 4096;
 		// rectangulos para calcular tamaño de nodo
-		Rectangle r0 = new Rectangle(0.5,4,3,4);
+		Rectangle r0 = new Rectangle(0,4,3,4);
 		Rectangle r1 = new Rectangle(1,2,3,4);
 		Rectangle r2 = new Rectangle(1,2,3,4);
 		Node n = new Node(2,null,true);
@@ -137,20 +136,19 @@ public class Main {
 	}
 	
 	static public Rectangle randomRectangle(){
-		Random r = new Random();
 		/* (x1,y1) es la esquina inferior izquierda del rectangulo
 		 *  la que se obtiene de forma uniformemente aleatoria
 		 */
-		double x1 = randomDouble(0,500000,r);
-		double y1 = randomDouble(0,500000,r);
-		double x2 = x1 + randomDouble(0,100, r);
-		double y2 = y1 + randomDouble(0,100,r)/(x2-x1);
+		int x1 = randomInt(0,500000);
+		int y1 = randomInt(0,500000);
+		int x2 = x1 + randomInt(1,100);
+		int y2 = y1 + randomInt(0,100)/(x2-x1);
 		return new Rectangle(x1,x2,y1,y2);
 		
 	}
 	
-	static public double randomDouble(double min, double max, Random r){
-		return min + (max - min)*r.nextDouble();
+	static public int randomInt(int min, int max){
+		return (int)(min + (max - min)*Math.random());
 	}
 
 }

@@ -1,0 +1,268 @@
+\documentclass[letterpaper,12pt]{article}
+ 
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{listings} 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%% PORTADA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\def\thickhrulefill{\leavevmode \leaders \hrule height 1pt\hfill \kern \z@}
+\renewcommand{\maketitle}{\begin{titlepage}%
+    \let\footnotesize\small
+    \let\footnoterule\relax
+    \parindent \z@
+    \reset@font
+    \null\vfil
+    \begin{flushleft}    
+      \small \@curso \par
+      \huge{\textbf{\@title}} \par
+    \end{flushleft}
+    \par
+    \hrule height 4pt
+    \par
+    \begin{flushright}
+      \Huge{\textbf{\@author}} \par
+      \bigskip
+      \normalsize{\@primerautor} \par
+      \normalsize{\@segundoautor} \par
+      \bigskip
+      \bigskip
+      \normalsize \@date \par
+    \end{flushright}
+    \vskip 60\p@
+    \vfil\null
+  \end{titlepage}%
+  \setcounter{footnote}{0}%
+}
+\def\primerautor#1{\def\@primerautor{#1}}
+\def\segundoautor#1{\def\@segundoautor{#1}}
+\def\curso#1{\def\@curso{#1}}
+\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%% PORTADA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+ 
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%% DATOS PERSONALES %%%%%%%%%%%%%%%%%%%%%%%
+\curso{CC4102 Dise\~no y An\'alisis de Algoritmos}
+\title{Informe Tarea I}
+ 
+\primerautor{Agust\'in L\'opez Q.}
+\segundoautor{Mat\'ias Cisterna M.}
+ 
+ 
+ 
+\begin{document}
+ 
+\maketitle
+ 
+ 
+\newpage
+\thispagestyle{empty}
+\tableofcontents
+\setcounter{page}{0}
+\newpage
+ 
+\section{Introducci\'on}
+En esta tarea 1 de Dise\~no y An\'alisis de Algoritmos se busca analizar sobre una estructura de datos dada (R-tree) diferentes algoritmos de inserci\'on y como estos repercuten en la operaci\'on de b\'usqueda sobre la estructura de datos.
+	
+Un R-tree es una estructura de datos del tipo \'arbol. Esta estructura es usualmente utilizada para m\'etodos de acceso espacial. Es decir, esta estructura indexa informaci\'on de localizaci\'on, para luego ser consultada de forma eficiente. Consultas del tipo: \textit{encontrar todos los puntos en un radio y centro dado, que cumplan cierto requisito}. La idea de la estructura R-tree es a medida que se inserta y se borra ir manteniendo el \'arbol balanceado y que todos los nodos y hojas cercanos a un dato est\'en localizados espacialmente cerca. Con el fin de lograr que la b\'usqueda de un vecindario de un punto en especial sea eficiente.
+
+\newpage 
+\section{Hip\'otesis}
+
+
+\newpage
+\section{Dise\~no Experimental}
+\subsection{Implementaci\'on}
+Para la implementaci\'on se us\'o el lenguaje de programaci\'on Java. El dise\~no se dividi\'o en 5 clases:
+
+\begin{itemize}
+\item \textit{RTree}: Representa el \'arbol R-Tree.
+\item \textit{Node}: Representa un nodo dentro del \'arbol.
+\item \textit{Rectangle}: Representa los rect\'angulos guardados en los nodos.
+\item \textit{StopWatch}: Clase creada para medir tiempos de forma simple.
+\item \textit{Main}: Clase con m\'etodo \textit{main}, es desde donde se ejecuta el programa.
+\end{itemize}
+
+Para la representaci\'on de los rect\'angulos de cre\'o la clase \textit{Rectangle}, donde se guardan como variables de instancia los puntos $(x_1,y_1)$ y $(x_2,y_2)$ los que representan la esquina inferior izquierda y superior derecha, respectivamente. Adem\'as se guarda como variable de instancia una referencia a un nodo, el que puede ser nulo cuando el rect\'angulo es real (rect\'angulo insertado con metodo \textit{insert}), o puede ser un nodo hijo cuando el rect\'angulo es un \textit{MBR}. El objeto \textit{Rectangle} cuenta con m\'etodos para obtener el \'area y saber si dos rect\'angulos se intersectan (para esta parte se considera que si dos rect\'angulos solo comparten un v\'ertice o una arista entonces no se intersectan).
+La clase \textit{Node} guarda como variable de instancia una lista con sus rect\'angulos, la variable $t$, una referencia a su nodo padre y una variable booleana que indica si es o no una hoja.
+Por su parte la estructura de datos R-Tree guarda los rect\'angulos en sus nodos. La cantidad de rect\'angulos guardados en cada nodo del \'arbol fluctua entre $t$ y $2t$, donde $t$ es definida previamente y depende a su vez de la siguiente condici\'on: \textit{La cantidad de rect\'angulos es tal que un nodo completo debe caber totalmente dentro de un bloque de memoria}. Para hacer esto se usaron clases provistas por el lenguaje para calcular el tamaño que usar\'ia una estructura \textit{Node} y el hecho de que un bloque tiene tama\~no $4KB$ (4096 bytes).
+La implementaci\'on de la estructura de datos consta de dos algoritmos, uno de b\'usqueda y otro de inserci\'on de rect\'angulos.
+\begin{itemize}
+\item B\'usqueda: El algoritmo de b\'usqueda recibe como par\'ametro un rect\'angulo y retorna una lista con todos los rect\'angulos reales que intersectan a este rect\'angulo. La implementaci\'on es bastante sencilla, pero tiene una pequeña modificaci\'on, no retorna la lista de rect\'angulos que inersectan, si no que recibe como par\'ametro una lista vac\'ia y esta se va llenando a medida que se encuentre con rect\'angulos que intersectan, y retorna el n\'umero de lecturas/escrituras que hace el algoritmo, las que son simuladas y contadas cada vez que se accede a un nodo hijo correspondiente a un rect\'angulo MBR que intersecta con el rect\'angulo par\'ametro.
+\lstset{language=Java, breaklines=true, basicstyle=\footnotesize}
+\begin{lstlisting}[frame=single]
+public int searchRectangle(Rectangle r, ArrayList<Rectangle> lst)
+  int IOs = 0;
+  for(Rectangle nr : rectangles){
+    if(!r.equals(nr) && r.intersect(nr)){
+      if(isLeaf)
+        lst.add(nr);
+      else
+        IOs += 1 + nr.node.searchRectangle(r,lst);
+    }
+  }
+}
+return IOs;
+\end{lstlisting}
+\item Inserci\'on: Para la inserci\'on se hace un recorrido del \'arbol hasta llegar a una hoja, que es donde se insertar\'a el nuevo rectan\'angulo. El recorrido es como sigue: Se parte de la ra\'iz y se busca el rect\'angulo en su lista que genere el menor incremento de \'area al crear el MBR entre este y el nuevo rect\'angulo, luego se desciende por el nodo asociado a ese rect\'angulo y se hace el mismo procedimiento, hasta llegar a una hoja. Al igual que en la b\'usqueda, en la inserci\'on se hace una modificaci\'on al algoritmo para que este retorne el n\'umero de I/O's que hace a disco. Estas I/O's se cuentan de la siguiente forma: Si el rect\'angulo que est\'a en el nodo no es una hoja, se suma uno a la cantidad total de I/O's y se hace el llamado recursivo, de lo contrario, si es una hoja se usa un nuevo m\'etodo llamado \textit{insertOverflowedRectangle}, el que se encarga de insertar el rect\'angulo y hacer \textit{split} si se produce \textit{overflow}. Para contar la cantidad de I/O's en este m\'etodo se usa la siguiente estrategia: Si despu\'es de insertar no hay \textit{overflow} entonces se retorna 0, de lo contrario primero se verifica si es que estamos en la ra\'iz, de ser as\'i creamos un nuevo nodo, el que ser\'a la nueva ra\'iz y le sumamos uno al total de I/O's ya que al crear el nuevo nodo se cuenta una nueva escritura. Luego se verifica cual de los 2 m\'etodos se usar\'an para separar la lista de rect\'angulos, se llama al algoritmo correspondiente (\textit{linearSplit} o \textit{quadraticSlpit}), se aloca en memoria un nuevo nodo (nueva escritura) el que representar\'a al nuevo nodo con la "mitad" de los rect\'angulos del nodo anterior, y se suma uno m\'as a la cantidad de I/O's. Despu\'es se calculan los nuevos MBR de ambos grupos de rect\'angulos y se hace un llamado recursivo por cada rect\'angulo nuevo creado, para insertarlos en el nodo padre, y la cantidad de I/O's ded estos dos llamados recursivos se suman al total de I/O's que se han acumulado, finalemente llamando al m\'etodo \textit{update} que actualiza todos los MBR desde la hoja hasta el padre.
+\end{itemize}
+Los dos m\'etodos para separar nodos son heur\'isticas para obtener una separaci\'on lo m\'as \textit{equitativa} posible de los rect\'angulos. A Continuaci\'on se detalla a grandes razgos la implementaci\'on de ambos algoritmos:
+\begin{itemize}
+\item \textit{QuadraticSplit}: Escogemos los dos rect\'angulos $R_1$ y $R_2$ cuyo incremento de \'area es m\'aximo si es que fueran puestos en el mismo grupo. Es decir, $R_1$ y $R_2$ maximizan (\'area del MBR de $R_1$ y $R_2$) $-$ (\'area de $R_1$ + \'area de $R_2$), sobre todos los pares de rect\'angulos. Asignamos $R_1$ y $R_2$ a grupos distintos.
+
+\lstset{language=Java, breaklines=true, basicstyle=\footnotesize}
+\begin{lstlisting}[frame=single]
+public void quadraticSplit(ArrayList<Rectangle> g1, ArrayList<Rectangle> g2){
+  Rectangle newMBR;
+  // indices finales de los rectangulos elegidos para separar en 2 grupos
+  int final_i = 0, final_j = 1;
+  double incremento = 0.0;
+  ArrayList<Rectangle> lst = new ArrayList<Rectangle>();
+  // separando en grupos
+  for(int i=0;i<rectangles.size()-1;i++){
+    lst.add(rectangles.get(i));
+    for(int j=i+1; j<rectangles.size();j++){
+      lst.add(rectangles.get(j));
+      newMBR = makeMBR(lst);
+      double newincremento = newMBR.area() - rectangles.get(i).area() - rectangles.get(j).area();
+      if(incremento < newincremento){
+        incremento = newincremento;
+        final_i = i;
+        final_j = j;
+      }
+      lst.remove(rectangles.get(j));
+    }
+    lst.remove(rectangles.get(i));
+  }
+  // asignamos a R1 y R2 a grupos distintos
+  Rectangle R1 = rectangles.get(final_i);
+  Rectangle R2 = rectangles.get(final_j);
+  g1.add(R1);
+  g2.add(R2);
+  rectangles.remove(R1);
+  rectangles.remove(R2);
+
+\end{lstlisting}
+Iterativamente asignamos un grupo para el resto de los rect\'angulos como sigue:
+\begin{itemize}
+\item Si todos los rect\'angulos tienen grupo asignado, nos detenemos. Si hay un grupo con tan pocos elementos, que la \'unica forma de que tenga al menos $t$ rect\'angulos es agregando todos los rect\'angulos restantes a este grupo, entonces los agregamos y nos detenemos.
+\item Para cada rect\'angulo $R$ que a\'un no tiene grupo, calculamos $g_1$ = incremento en \'area por agregar $R$ al grupo 1. Similarmente, calculamos $g_2$. Escogemos R tal que maximiza $|g_1 - g_2|$. Agregamos $R$ al grupo cuyo incremento en \'area por incluir $R$ es menor. Si hay empate, escogemos el grupo con menor \'area. Si el \'area es la misma, escogemos el grupo con menor cantidad de rect\'angulos. Si sigue habiendo empate, escogemos un grupo arbitrariamente. Volvemos al paso anterior.
+
+\end{itemize}
+
+\item \textit{LinearSlpit}: Se considera un rect\'angulo $R = [x_1, x_2] \times [y_1, y_2]$. El lado menor y mayor de $R$ en la dimensi\'on $x$ es $x_1$ y $x_2$, respectivamente. Similarmente, para la dimens\'on $y$ ser\'a $y_1$ e $y_2$. Escogemos dos rect\'angulos $R_1$ y $R_2$ como sigue: Por cada dimensi\'on $d$, buscamos el rect\'angulo $A_d$ cuyo lado mayor $a_d$ seg\'un $d$ es m\'inimo, y el rect\'angulo $B_d$ cuyo lado menor $b_d$ seg\'un $d$ es m\'aximo. Calculamos $w_d$ como $b_d - a_d$ dividido por el ancho del conjunto en la dimensi\'on $d$. Escogemos $R_1 = A_d$ y $R_2 = B_d$ tal que $w_d$ es m\'aximo, sobre $d = \{x, y\}$. Asignamos $R_1$ y $R_2$ a grupos distintos.
+
+\lstset{language=Java, breaklines=true, basicstyle=\footnotesize}
+\begin{lstlisting}[frame=single]
+public void linearSplit(ArrayList<Rectangle> g1, ArrayList<Rectangle> g2){
+  Rectangle R1, R2;
+  /* para ambas dimensiones buscamos el rectangulo Ad cuyo lado mayor ad es minimo
+   * y el rectangulo Bd cuyo lado menor bd es maximo
+   */
+  Rectangle Ax = rectangles.get(0);
+  double ax = Ax.x2;
+  Rectangle Ay = rectangles.get(0);
+  double ay = Ay.y2;
+  Rectangle Bx = rectangles.get(0);
+  double bx = Bx.x1;
+  Rectangle By = rectangles.get(0);
+  double by = By.y1;
+  for(Rectangle nr : rectangles){
+    if(nr.x2 < ax){
+      ax = nr.x1;
+      Ax = nr;
+    }
+    if(nr.y2 < ay){
+      ay = nr.y1;
+      Ay = nr;
+    }
+    if(nr.x1 > bx){
+      bx = nr.x2;
+      Bx = nr;
+    }
+    if(nr.y1 > by){
+      by = nr.y2;
+      By = nr;
+    }
+  }
+  double anchox = (Bx.x2 < Ax.x2 ? Ax.x2 : Bx.x2) - (Bx.x1 > Ax.x1 ? Ax.x1 : Bx.x1);
+  double anchoy = (By.y2 < Ay.y2 ? Ay.y2 : By.y2) - (By.y1 > Ay.y1 ? Ay.y1 : By.y1);
+  double wx = (bx - ax)/anchox;
+  double wy = (by - ay)/anchoy;
+  if(wx > wy){
+    if(Ax != Bx){
+      R1 = Ax;
+      R2 = Bx;
+    }else{
+      R1 = rectangles.get(0);
+      R2 = rectangles.get(1);
+    }
+  }else{
+    if(Ay != By){
+      R1 = Ay;
+      R2 = By;
+    }else{
+      R1 = rectangles.get(0);
+      R2 = rectangles.get(1);
+    }
+  }
+  g1.add(R1);
+  g2.add(R2);
+  rectangles.remove(R1);
+  rectangles.remove(R2);
+\end{lstlisting}
+
+ Para asignar los rect\'angulos restantes hacemos lo siguiente:
+\begin{itemize}
+\item Si todos los rec\'angulos tienen grupo asignado, nos detenemos. Si hay un grupo con tan pocos elementos, que la \'unica forma de que tenga al menos $t$ rect\'angulos es agreg\'ando todos los rect\'angulos restantes a este grupo, entonces los agregamos y nos detenemos.
+
+\item Escogemos arbitrariamente un rect\'angulo $R$ que no tiene grupo asignado. Agregamos $R$ al grupo cuyo incremento en \'area por incluir $R$ es menor. Si hay empate, escogemos el grupo con menor \'area. Si el \'area es la misma, escogemos el grupo con menor cantidad de rect\'angulos. Si sigue habiendo empate, escogemos un grupo arbitrariamente. Volvemos al paso anterior.
+\end{itemize}
+\end{itemize}
+\subsection{Generaci\'on de Instancias}
+
+El experimento consiste en en medir dos tipos de instancias:
+\begin{itemize}
+\item \textbf{Aleatorias}: Se generan rect\'angulos aleatorios de la siguiente forma: Primero se generan 2 enteros $x_1$ e $y_1$ que se distribuyen uniformemente en el intervalo $[0,500000]$, estos n\'umeros representan la coordenada de la esquina inferior izquierda del rect\'angulo. Luego, $x_2$ se obtiene sumando a $x_1$ un n\'umero aleatorio en el intervalo $[0,100]$ y finalemente se obtiene $y_2$ usando las variables anteriores y asumiendo que el \'area del rect\'angulo debe estar distribuida aleatoriamente en el intervalo $[0,100]$.
+
+\lstset{language=Java, breaklines=true, basicstyle=\footnotesize}
+\begin{lstlisting}[frame=single]
+static public Rectangle randomRectangle(){
+  /* (x1,y1) es la esquina inferior izquierda del rectangulo
+   *  la que se obtiene de forma uniformemente aleatoria
+   */
+  int x1 = randomInt(0,500000);
+  int y1 = randomInt(0,500000);
+  int x2 = x1 + randomInt(0,100);
+  int y2 = y1 + randomInt(0,100)/(x2-x1);
+  return new Rectangle(x1,x2,y1,y2);
+}
+\end{lstlisting}
+
+Con lo anterior se generan dos \'arboles y conjuntos de rect\'angulos de tama\~no $n$, con $n \in \{2^9,2^{12},2^{15},2^{18},2^{21},2^{24}\}$. Cada conjunto se agrega a uno de los \'arboles con uno de los m\'etodos de inserci\'on implementados, el que es elegido a partir de una variable booleana que se pasa como par\'ametro. Al hacer eso se mide el n\'umero de I/O's y el tiempo demorado.
+
+Despu\'es de esto se generan $n/10$ nuevos rect\'angulos y se realizan b\'usquedas, y en estas tambi\'en se obtienen la cantidad de I/O's y el tiempo que se demora en buscar, por cada grupo se obtiene el promedio de estas medidas y su respectiva desviaci\'on est\'andar.
+
+\end{itemize}
+\subsection{Medidas de Rendimiento}
+Las medidas de rendimiento usadas son dos:
+\begin{itemize}
+\item La cantidad de I/O's hechas por una inserci\'on o b\'usqueda. Estas son simuladas en ambos algoritmos, es decir en la b\'usqueda cada vez que se accede a un nuevo nodo hijo se suma uno a la cantidad total de I/O's, y no se agregan por escrituras ya que solo se lee, y para las inserciones se suma uno a la cantidad total de I/O's cada vez que se baja en un nivel en el \'arbol, esto debido a que hay una nueva lectura de un nodo, adem\'as se suma uno cada vez que hay \textit{overflow}, ya que se genera una nueva escritura (generar nuevo nodo hermano), por lo que tambi\'en se suma uno m\'as extra si hay \textit{overflow} en la ra\'iz, ya que debe haber una nueva escritura al crear un nuevo nodo para la ra\'iz.
+
+\item El tiempo de ejecuci\'on de cada operaci\'on. Para esto se cre\'o la clase \textit{StopWatch}, la que se puede iniciar y pausar, incrementando el tiempo total de la ejecución sin ser molestado por ejecuciones de otras partes del c\'odigo.
+\end{itemize}
+Finalemente estas medidas, tanto de b\'usqueda como de inserci\'on son almacenadas en un nuevo archivo creado, con el objetivo de almacenar los datos y luego analizarlos.
+\newpage
+\section{Presentaci\'on de Resultados}
+
+
+\newpage
+\section{An\'alisis e Interpretaci\'on}
+ 
+ 
+ 
+ 
+ 
+ 
+\end{document}
