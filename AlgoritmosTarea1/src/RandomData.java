@@ -58,34 +58,19 @@ public class RandomData {
 	{
 		Random random = new Random();
 		
-		int area = random.nextInt(101);
-		System.out.println("area: " + area);
-		int mitadArea = area/2;
-		System.out.println("mitadArea: " + mitadArea);
-		int x1,x2,y1,y2;
+		double x1,x2,y1,y2;
 		
-		while (true)
-		{
-	        x1 = random.nextInt(500001);
-	        x2 = random.nextInt(500001);
-	        
-	        if ((x1-x2) <= mitadArea && (x1-x2) > 0)
-	        {
-	        	System.out.println("x1-x2: " + (x1-x2));
-	        	break;
-	        }
-		}
-		while (true)
-		{
-	        y1 = random.nextInt(500001);
-	        y2 = random.nextInt(500001);
-	        
-	        if ((y1-y2) <= ((x1-x2)/mitadArea) && (y1-y2) > 0)
-	        {
-	        	System.out.println("y1-y2: " + (y1-y2));
-	        	break;
-	        }
-		}
+        x1 = random.nextInt(500001);
+        x2 = x1 + random.nextInt(101);
+        
+       	System.out.println("x1-x2: " + (x2-x1));
+
+        y1 = random.nextInt(500001);
+        
+        y2 = y1 + random.d(101)/(x2-x1) ;
+         
+    	System.out.println("y1-y2: " + (y2-y1));
+
      
         r1 = new Rectangle(x1,x2,y1,y2);
         recSize = r1.area();
