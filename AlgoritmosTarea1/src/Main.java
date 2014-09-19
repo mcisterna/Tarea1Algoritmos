@@ -28,7 +28,7 @@ public class Main {
 		writer4.println("Tamano (2^n)	Cantidad promedio I/Os	d.e. I/Os	Tiempo promedio (milisegundos)	d.e. tiempo");
 		StopWatch timer1 = new StopWatch();
 		StopWatch timer2 = new StopWatch();
-		for(int i=9;i<=21;i+=3){
+		for(int i=9;i<=24;i+=3){
 			IO_linear.clear();
 			IO_quadratic.clear();
 			time_quadratic.clear();
@@ -81,6 +81,7 @@ public class Main {
 		writer2.close();
 		writer3.close();
 		writer4.close();
+		tree1 = new RTree(t);
 	}
 	
 	static double promedio(ArrayList<Number> lst){
@@ -102,9 +103,9 @@ public class Main {
 		// Tamaño de bloque = 4 KB
 		int block_sz = 4096;
 		// rectangulos para calcular tamaño de nodo
-		Rectangle r0 = new Rectangle(0,4,3,4);
-		Rectangle r1 = new Rectangle(1,2,3,4);
-		Rectangle r2 = new Rectangle(1,2,3,4);
+		Rectangle r0 = new Rectangle(0.0,4.0,3.0,4.0);
+		Rectangle r1 = new Rectangle(1.0,2.0,3.0,4.0);
+		Rectangle r2 = new Rectangle(1.0,2.0,3.0,4.0);
 		Node n = new Node(2,null,true);
 		n.rectangles.add(r0);
 		// tamaños con 1, 2 y 3 rectangulos 
@@ -140,16 +141,16 @@ public class Main {
 		/* (x1,y1) es la esquina inferior izquierda del rectangulo
 		 *  la que se obtiene de forma uniformemente aleatoria
 		 */
-		int x1 = randomInt(0,500000);
-		int y1 = randomInt(0,500000);
-		int x2 = x1 + randomInt(1,100);
-		int y2 = y1 + randomInt(0,100)/(x2-x1);
+		double x1 = randomDouble(0.0,50.0);
+		double y1 = randomDouble(0.0,50.0);
+		double x2 = x1 + randomDouble(1.0,10.0);
+		double y2 = y1 + randomDouble(10.0,100.0)/(x2-x1);
 		return new Rectangle(x1,x2,y1,y2);
 		
 	}
 	
-	static public int randomInt(int min, int max){
-		return (int)(min + (max - min)*Math.random());
+	static public double randomDouble(double min, double max){
+		return min + (max - min)*Math.random();
 	}
 
 }

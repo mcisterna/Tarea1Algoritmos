@@ -118,10 +118,10 @@ public class Node implements Serializable{
 	}
 	
 	public Rectangle makeMBR(ArrayList<Rectangle> rectangles){
-		int x1 = rectangles.get(0).x1;
-		int x2 = rectangles.get(0).x2;
-		int y1 = rectangles.get(0).y1;
-		int y2 = rectangles.get(0).y2;
+		double x1 = rectangles.get(0).x1;
+		double x2 = rectangles.get(0).x2;
+		double y1 = rectangles.get(0).y1;
+		double y2 = rectangles.get(0).y2;
 		for(Rectangle r : rectangles){
 			x1 = x1 < r.x1 ? x1 : r.x1;
 			x2 = x2 > r.x2 ? x2 : r.x2;
