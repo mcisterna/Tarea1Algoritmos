@@ -1,0 +1,2 @@
+Tamano (2^n)	Cantidad I/Os	Tiempo (milisegundos)
+	30296	250

@@ -1,0 +1,2 @@
+Tamano (2^n)	Cantidad promedio I/Os	d.e. I/Os	Tiempo promedio (milisegundos)	d.e. tiempo
+	0.009541984732824428	0.2545475333028489	0.0028625954198473282	0.05342659419530294

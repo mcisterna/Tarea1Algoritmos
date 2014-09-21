@@ -109,8 +109,8 @@ public class Data {
 			
 			writer1.println("	"+cnt1+"	"+timer1.getElapsedTime());
 			writer2.println("	"+cnt2+"	"+timer2.getElapsedTime());
-			System.out.println("para 1 2^"+": "+cnt1);
-			System.out.println("para 2 2^"+": "+cnt2);
+			System.out.println("para 1 "+": "+cnt1);
+			System.out.println("para 2 "+": "+cnt2);
 			timer1.reset();
 			timer2.reset();
 			// ahora se calcula tiempo y cantidad de I/Os de n/10 busquedas
