@@ -1,9 +1,10 @@
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFactorySpi;
 import org.geotools.data.DataStoreFinder;
@@ -22,18 +23,22 @@ import org.opengis.geometry.BoundingBox;
 
 public class Data {
     public static DataStore dataStore;
-    public static JComboBox featureTypeCBox;
-    public static JTable table;
-    public static JTextField text;
-    
     
     public static void main(String[] args) throws Exception {
-    	connect(new ShapefileDataStoreFactory());
+    	//connect2(new ShapefileDataStoreFactory());
+    	connect();
      	queryFeatures();
     }
 
+    private static void connect () throws IOException
+    {
+    	File file = new File("AlgoritmosTarea1/maps/tl_2011_06_prisecroads.shp");
+    	Map map = new HashMap();
+    	map.put( "url", file.toURL() );
+    	dataStore = DataStoreFinder.getDataStore( map );
+    }
     
-    private static void connect(DataStoreFactorySpi format) throws Exception {
+    private static void connect2(DataStoreFactorySpi format) throws Exception {
         JDataStoreWizard wizard = new JDataStoreWizard(format);
         int result = wizard.showModalDialog();
         if (result == JWizard.FINISH) {
@@ -48,7 +53,7 @@ public class Data {
     
     private static void queryFeatures() throws Exception {
         
-        String typeName = "tl_2011_06_prisecroads";
+        String typeName = dataStore.getTypeNames()[0];
         SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
 
         FeatureType schema = source.getSchema();
@@ -75,8 +80,6 @@ public class Data {
                  System.out.println( bounds.getHeight()); // obtengo la altura del rectangulo
                  System.out.println( bounds.getWidth()); // obtengo el ancho del rectangulo
                  System.out.println( "++++++++++" );
-                 
-                 
             }
         }
         finally {
