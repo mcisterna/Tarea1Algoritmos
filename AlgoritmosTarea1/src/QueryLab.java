@@ -34,7 +34,12 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
-public class QueryLab extends JFrame {
+
+/*clase de prueba para hacer query sobre el archivo .shp
+ * Este desplega una ventana la cual la hacer click sobre el boton file 
+ * uno puede ingresar el archivo shape, una vez cargado este. uno le da click a all features
+*/
+public class QueryLab extends JFrame {  
     private DataStore dataStore;
     private JComboBox featureTypeCBox;
     private JTable table;

@@ -1,2 +1,0 @@
-Tamano (2^n)	Cantidad I/Os	Tiempo (milisegundos)
-	30058	41

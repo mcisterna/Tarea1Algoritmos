@@ -26,16 +26,25 @@ import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.geometry.BoundingBox;
 
+/*Clase que obtiene los datos necesarios para hacer el analisis sobre los datos reales
+ * 
+ * 
+ */
+
+
 public class Data {
     public static DataStore dataStore;
     public static int count;
     
+    /*Metodo main que ejectuda el codigo y retorna 4 archivos .txt con los datos necesarios
+     * 
+     */
     public static void main(String[] args) throws Exception {
-    	//connect2(new ShapefileDataStoreFactory());
-    	connect();
-     	queryFeatures();
-     	
-     	
+    	//connect2(new ShapefileDataStoreFactory()); // funcion que hace conexion con el archivo .shp pero este 
+    												 // desplega venta la cual uno puede elegir arbitrariamente cual cargar
+    	connect(); // funcion que hace conexion con el archivo .shp
+     	getCount(); // obtiene la cantidad de datos disponibles
+	
      	int t = getT();
 		RTree tree1, tree2;
 		int cnt1, cnt2;
@@ -202,7 +211,7 @@ private static Rectangle randomRectangle() throws Exception {
         return r;
     }
     
-    private static void queryFeatures() throws Exception {
+    private static void getCount() throws Exception {
         
         String typeName = dataStore.getTypeNames()[0];
         SimpleFeatureSource source = dataStore.getFeatureSource(typeName);
@@ -221,17 +230,6 @@ private static Rectangle randomRectangle() throws Exception {
             while( iterator.hasNext() ){
                  SimpleFeature feature = iterator.next();
                  count++;
-                 //System.out.println( feature.getDefaultGeometryProperty() );
-                 //System.out.println( "------------" );
-//                 BoundingBox bounds = feature.getBounds();
-//                 System.out.println( feature.getBounds());
-//                 System.out.println( bounds.getMaxX()); // max coordenada en x
-//                 System.out.println( bounds.getMaxY()); // max coordenada en y
-//                 System.out.println( bounds.getMinX()); // min coordenada en x
-//                 System.out.println( bounds.getMinY()); // min coordenada en y
-//                 System.out.println( bounds.getHeight()); // obtengo la altura del rectangulo
-//                 System.out.println( bounds.getWidth()); // obtengo el ancho del rectangulo
-//                 System.out.println( "++++++++++" );
             }
         }
         finally {
