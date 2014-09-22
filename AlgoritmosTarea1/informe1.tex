@@ -71,19 +71,20 @@ Un R-tree es una estructura de datos del tipo \'arbol. Esta estructura es usualm
 
 \newpage 
 \section{Hip\'otesis}
-
+Se cree que \textit{LinearSlpit} va a tomar menos tiempo en las inserciones que \textit{QuadraticSplit}. Sin embargo, al generar un \textit{R-tree} mas irregular su tiempo en la busqueda sera mayor que \textit{QuadraticSplit}. 
 
 \newpage
 \section{Dise\~no Experimental}
 \subsection{Implementaci\'on}
-Para la implementaci\'on se us\'o el lenguaje de programaci\'on Java. El dise\~no se dividi\'o en 5 clases:
+Para la implementaci\'on se us\'o el lenguaje de programaci\'on Java. El dise\~no se dividi\'o en 6 clases:
 
 \begin{itemize}
 \item \textit{RTree}: Representa el \'arbol R-Tree.
 \item \textit{Node}: Representa un nodo dentro del \'arbol.
 \item \textit{Rectangle}: Representa los rect\'angulos guardados en los nodos.
 \item \textit{StopWatch}: Clase creada para medir tiempos de forma simple.
-\item \textit{Main}: Clase con m\'etodo \textit{main}, es desde donde se ejecuta el programa.
+\item \textit{Main}: Clase con m\'etodo \textit{main}, es desde donde se obtiene los datos ficticios.
+\item \textit{Data}: Clase que contiene un método \textit{main} el cual se ejecuta para obtener los datos reales.
 \end{itemize}
 
 Para la representaci\'on de los rect\'angulos se cre\'o la clase \textit{Rectangle}, donde se guardan como variables de instancia los puntos $(x_1,y_1)$ y $(x_2,y_2)$ los que representan la esquina inferior izquierda y superior derecha, respectivamente. Adem\'as se guarda como variable de instancia una referencia a un nodo, el que puede ser nulo cuando el rect\'angulo es real (rect\'angulo insertado con metodo \textit{insert}), o puede ser un nodo hijo cuando el rect\'angulo es un \textit{MBR}. El objeto \textit{Rectangle} cuenta con m\'etodos para obtener el \'area y saber si dos rect\'angulos se intersectan (para esta parte se considera que si dos rect\'angulos solo comparten un v\'ertice o una arista entonces no se intersectan).
@@ -246,7 +247,39 @@ Con lo anterior se generan dos \'arboles y conjuntos de rect\'angulos de tama\~n
 
 Despu\'es de esto se generan $n/10$ nuevos rect\'angulos y se realizan b\'usquedas, y en estas tambi\'en se obtienen la cantidad de I/O's y el tiempo que se demora en buscar, por cada grupo se obtiene el promedio de estas medidas y su respectiva desviaci\'on est\'andar.
 
+
+\item \textbf{Datos Reales}: A partir de datos geoespaciales reales obtenidos de US Census Bureau. Se obtuvo el archivo de rutas del Censo del 2011 del estado de California.  A partir de las rutas primarias y secundarias del estado de California se generaron rectángulos mediante el siguiente código:
+\lstset{language=Java, breaklines=true, basicstyle=\footnotesize}
+\begin{lstlisting}[frame=single]
+while( iterator.hasNext() ){
+	SimpleFeature feature = iterator.next();
+	BoundingBox bounds = feature.getBounds();
+	r = new Rectangle(bounds.getMinX(), bounds.getMaxX(), bounds.getMinY(), bounds.getMaxY());
+}
+\end{lstlisting}
+
+Esto se logro generando \textit{Bounding Boxes} de los datos obtenidos mediante la función \textit{getBounds()} proporcionada por la api de GeoTools. Cabe destacar que la cantidad de rectángulos generados a partir de los datos reales son: 10.482.
+
+Con lo anterior se generaron dos arboles (uno para cada método de inserción). Finalmente se buscan $n/10$ rectángulos aleatoriamente mediante el siguiente código:
+\lstset{language=Java, breaklines=true, basicstyle=\footnotesize}
+\begin{lstlisting}[frame=single]
+while( iterator.hasNext() ){
+	SimpleFeature feature = iterator.next();
+	BoundingBox bounds = feature.getBounds();
+	r = new Rectangle(bounds.getMinX(), bounds.getMaxX(), bounds.getMinY(), bounds.getMaxY());
+	count2++;
+  	if (count2 == randomNum){
+		break;
+  	}
+}
+\end{lstlisting}
+
+Siendo $n$ la cantidad de rectángulos totales obtenidos de los datos reales. Con ello se obtienen todos los datos necesarios para hacer el análisis posterior.
+
 \end{itemize}
+
+
+
 \subsection{Medidas de Rendimiento}
 Las medidas de rendimiento usadas son dos:
 \begin{itemize}
@@ -258,7 +291,54 @@ Finalmente estas medidas, tanto de b\'usqueda como de inserci\'on, son almacenad
 
 \newpage
 \section{Presentaci\'on de Resultados}
-A continuaci\'on se presenta en una tabla los resultados del experimento de inserci\'on de rect\'angulos aleatorios en un R-Tree con el m\'etodo de \textit{QuadraticSplit}: \\
+
+\subsection{Datos Reales}
+
+\subsubsection{Inserciones}
+A continuaci\'on se presenta en una tabla los resultados del experimento de inserci\'on de rect\'angulos generados de datos reales en un R-Tree con el m\'etodo de \textit{QuadraticSplit}: \\
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Tama\~no} & \textbf{Cantidad I/O's} & \textbf{Tiempo (milisegundos)} \\
+\hline
+10482 & 30296 & 191 \\
+\hline
+\end{tabular}
+\\ \\
+
+A continuaci\'on se presenta en una tabla los resultados del experimento de inserci\'on de rect\'angulos generados de datos reales en un R-Tree con el m\'etodo de \textit{LinearSplit}: \\
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Tama\~no} & \textbf{Cantidad I/O's} & \textbf{Tiempo (milisegundos)} \\
+\hline
+10482 & 30058 & 58 \\
+\hline
+\end{tabular}
+\\ \\
+
+\subsubsection{Búsqueda}
+A continuaci\'on se presenta en una tabla los resultados del experimento de búsqueda de rect\'angulos generados de datos reales en un R-Tree en el arbol generado con el m\'etodo de \textit{QuadraticSplit}: \\
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Tama\~no} & \textbf{Cantidad promedio de I/O's} & \textbf{Tiempo promedio (milisegundos)} \\
+\hline
+10482 & 0.011450381679389313 & 0.004770992366412214 \\
+\hline
+\end{tabular}
+\\ \\
+
+A continuaci\'on se presenta en una tabla los resultados del experimento de búsqueda de rect\'angulos generados de datos reales en un R-Tree en el arbol generado con el m\'etodo de \textit{LinearSplit}: \\
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Tama\~no} & \textbf{Cantidad promedio de I/O's} & \textbf{Tiempo promedio (milisegundos)} \\
+\hline
+10482 & 0.0 & 0.004770992366412214 \\
+\hline
+\end{tabular}
+\\ \\
+
+\subsection{Datos Generados}
+\subsubsection{Inserciones}
+A continuación se presenta en una tabla los resultados del experimento de inserción de rectángulos aleatorios en un R-Tree con el método de \textit{QuadraticSplit}: \\
 \begin{tabular}{|c|c|c|}
 \hline
 \textbf{Tama\~no ($2^n$)} & \textbf{Cantidad I/O's} & \textbf{Tiempo (milisegundos)} \\
@@ -279,7 +359,7 @@ A continuaci\'on se presenta en una tabla los resultados del experimento de inse
 \\ \\
 Los gr\'aficos de ambos datos, en escala logar\'itmica para su mejor visualizaci\'on se encuentran en la Figura~\ref{fig:f1} y ~\ref{fig:f2}.
 
-Ahora se presenta en una tabla los resultados del experimento de inserci\'on de rect\'angulos aleatorios en un R-Tree con el m\'etodo de \textit{LinearSplit}: \\
+Ahora se presenta en una tabla los resultados del experimento de inserción de rectángulos aleatorios en un R-Tree con el método de \textit{LinearSplit}: \\
 \begin{tabular}{|c|c|c|}
 \hline
 \textbf{Tama\~no ($2^n$)} & \textbf{Cantidad I/O's} & \textbf{Tiempo (milisegundos)} \\
@@ -300,28 +380,75 @@ Ahora se presenta en una tabla los resultados del experimento de inserci\'on de 
 
 Los gr\'aficos de ambos datos, en escala logar\'itmica para su mejor visualizaci\'on se encuentran en la Figura~\ref{fig:f3} y ~\ref{fig:f4}.
 
-\begin{figure}
+\subsubsection{Búsqueda}
+A continuación se presenta en una tabla los resultados del experimento de busqueda de rectángulos aleatorios en un R-Tree con el método de inserción \textit{QuadraticSplit}: \\
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Tama\~no ($2^n$)} & \textbf{Cantidad promedio de I/O's} & \textbf{Tiempo promedio (milisegundos)} \\
+\hline
+9 & 0.0 & 0.0 \\
+\hline
+12 & 0.0 & 0.0 \\
+\hline
+15 & 0.0 & 0.0 \\
+\hline
+18 & 0.0 & 7.629510948348211E-5 \\
+\hline
+21 & 0.0 & 3.337863290656367E-5 \\
+\hline
+24 & 0.0 & 2.384186643667213E-5 \\
+\hline
+\end{tabular}
+\\ \\
+
+A continuación se presenta en una tabla los resultados del experimento de busqueda de rectángulos aleatorios en un R-Tree con el método de inserción \textit{LinearSplit}: \\
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Tama\~no ($2^n$)} & \textbf{Cantidad promedio de I/O's} & \textbf{Tiempo promedio (milisegundos)} \\
+\hline
+9 & 0.0 & 0.0 \\
+\hline
+12 & 0.0 & 0.0024449877750611247 \\
+\hline
+15 & 0.0 & 9.157509157509158E-4 \\
+\hline
+18 & 0.0 & 1.1444266422522316E-4 \\
+\hline
+21 & 0.0 & 4.291538516558186E-5 \\
+\hline
+24 & 0.0 & 2.7418146402172948E-5 \\
+\hline
+\end{tabular}
+\\ \\
+
+
+
+
+\newpage
+\subsection{Gráficos}
+
+\begin{figure}[bp!]
   \centering
     \includegraphics[width=0.8\textwidth]{quadratic_io}
   \caption{Gr\'afico Tama\~no vs I/O's para QuadraticSplit}
   \label{fig:f1}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[bp!]
   \centering
     \includegraphics[width=0.8\textwidth]{quadratic_tiempo}
   \caption{Gr\'afico Tama\~no vs Tiempo para QuadraticSplit}
   \label{fig:f2}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[bp!]
   \centering
     \includegraphics[width=0.8\textwidth]{linear_io}
   \caption{Gr\'afico Tama\~no vs I/O's para LinearSplit}
   \label{fig:f3}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[bp!]
   \centering
     \includegraphics[width=0.8\textwidth]{linear_tiempo}
   \caption{Gr\'afico Tama\~no vs Tiempo para LinearSplit}
@@ -329,11 +456,19 @@ Los gr\'aficos de ambos datos, en escala logar\'itmica para su mejor visualizaci
 \end{figure}
 
 \newpage
-\section{An\'alisis e Interpretaci\'on}
+\section{An\'alisis e Interpretaci\'on de Datos}
+ \subsection{Inserciones}
  
+Podemos ver que para el caso de datos generados la cantidad de I/O's y el tiempo a medida que crece $n$, es lineal para ambos casos de inserción(\textit{LinearSplit} y \textit{QuadraticSplit}). Sin embargo, podemos notar que para el caso de \textit{LinearSplit} este toma casi la mitdad del tiempo que \textit{QuadraticSplit}. Ademas \textit{LinearSplit} hace ligeramente menos I/O's que \textit{QuadraticSplit}.
+
+Por otro lado, en el caso en que los rectángulos son generados a partir de datos reales. Vemos que nuevamente el tiempo de inserción para el método \textit{LinearSplit} toma bastante menos tiempo que textit{QuadraticSplit}. Sin embargo, en la cantidad de I/O's ambos algoritmos se comportan relativamente similar.
+
+Dado la naturaleza de ambos algoritmos de inserción es fácil ver que para el caso de \textit{LinearSplit} este iba a lograr menores tiempos de inserción en comparación a \textit{QuadraticSplit}. Esto se debe a que la naturaleza de su algoritmo hace generar arboles mas irregulares. Es decir, genera arboles menos balanceados que \textit{QuadraticSplit}. Esto se debe a que las estrategias de \textit{LinearSplit} son mas laxas. Sin embargo, esto puede producir que al momento de realizar operaciones sobre un árbol generado por \textit{LinearSplit} esta tome mas tiempo que en \textit{QuadraticSplit}.
+
  
- 
- 
- 
+\subsection{Búsqueda}
+Lamentablemente después de analizar ambos casos, Datos reales y generados. Se puede concluir que el método de búsqueda posee algún error. Se cree que este no estaba cargando los datos de disco por lo tanto al leerlos de memoria primaria arroja los datos adjuntos. Que son de costo prácticamente cero para ambos casos, que es de esperarse si los datos son leídos de memoria primaria.  
+
+Por otro lado se esperaba que \textit{QuadraticSplit} tuviese mejores tiempos y menores I/O's que \textit{LinearSplit}.
  
 \end{document}

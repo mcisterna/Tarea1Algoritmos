@@ -45,6 +45,7 @@ public class Data {
     	connect(); // funcion que hace conexion con el archivo .shp
      	getCount(); // obtiene la cantidad de datos disponibles
 	
+     	System.out.println("count:" +count);
      	int t = getT();
 		RTree tree1, tree2;
 		int cnt1, cnt2;
